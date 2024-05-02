@@ -31,14 +31,14 @@ class Ed25519ThresholdV0 implements ThresholdAlgorithm {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  dealShares(secret: Uint8Array, threshold: number, total: number): Share[] {
+  dealShares(secret: Uint8Array): Share[] {
     // TODO
     const shares: Share[] = [];
     return shares;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  combineShares(shares: Share[], threshold: number, total: number): Uint8Array {
+  combineShares(shares: Share[]): Uint8Array {
     // TODO
     const secret: number[] = [];
     return new Uint8Array(secret);

@@ -8,6 +8,7 @@ interface Protocol {
 }
 
 enum Version {
+  UNSPECIFIED = "UNSPECIFIED",
   V0 = "V0",
   V1 = "V1",
 }
@@ -71,5 +72,5 @@ function decodeReplacer(key: string, value: any) {
   return value;
 }
 
-export type { Protocol };
+export type { Payload, Protocol, Packet };
 export { Version, pack, unpack };

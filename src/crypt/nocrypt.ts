@@ -1,16 +1,31 @@
-import { ThresholdAlgorithm, Share, Secret } from "../common/common";
+import { ThresholdAlgorithm, Share, Secret, NumMinimumShares } from "../common/common";
 import { Algorithm } from "./crypt";
 
 class NoCryptShare implements Share {
+  total: number;
+  threshold: number;
   content: Uint8Array;
 
-  constructor(content: Uint8Array) {
-    this.content = content;
+  constructor(object?: Uint8Array) {
+    if (object === undefined) {
+      this.total = 0;
+      this.threshold = 0;
+      this.content = new Uint8Array();
+      return;
+    }
+
+    const share: NoCryptShare = JSON.parse(Buffer.from(object).toString(), decodeReplacer);
+    if (share === undefined) {
+      throw new Error("Invalid NoCryptShare type");
+    }
+
+    this.total = share.total;
+    this.threshold = share.threshold;
+    this.content = share.content;
   }
 
   serialize(): Uint8Array {
-    // Implement serialization logic here
-    return this.content;
+    return new Uint8Array(Buffer.from(JSON.stringify(this, encodeReplacer)));
   }
 
   getAlgorithm(): Algorithm {
@@ -24,25 +39,27 @@ class NoCrypt implements ThresholdAlgorithm {
   }
 
   dealShares(secret: Secret, _threshold: number, total: number): Share[] {
-    const ncShare: NoCryptShare[] = [];
+    const ncShares: NoCryptShare[] = [];
 
     for (let index = 0; index < total; index++) {
-      ncShare.push(new NoCryptShare(secret));
+      const ncShare = new NoCryptShare();
+      ncShare.content = secret;
+      ncShares.push(ncShare);
     }
 
     // Type conversion for slice of interface
     const shares: Share[] = [];
-    for (let i = 0; i < ncShare.length; i++) {
-      shares.push(ncShare[i]);
+    for (let i = 0; i < ncShares.length; i++) {
+      shares.push(ncShares[i]);
     }
 
     return shares;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  combineShares(shares: Share[], threshold: number, _total: number): Secret {
-    if (shares.length < threshold) {
-      return new Uint8Array();
+  combineShares(shares: Share[]): Secret {
+    if (shares.length < NumMinimumShares) {
+      throw new Error("Not enough shares");
     }
 
     // Type conversion
@@ -56,8 +73,28 @@ class NoCrypt implements ThresholdAlgorithm {
       ncShares[i] = ncShare;
     }
 
+    if (ncShares.length < 1 || shares.length < ncShares[0].threshold) {
+      throw new Error("Not enough shares");
+    }
+
     return ncShares[0].content;
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function encodeReplacer(key: string, value: any) {
+  if (key === "content") {
+    return Buffer.from(value).toString("base64");
+  }
+  return value;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function decodeReplacer(key: string, value: any) {
+  if (key === "content") {
+    return new Uint8Array(Buffer.from(value, "base64"));
+  }
+  return value;
 }
 
 export { NoCrypt, NoCryptShare };

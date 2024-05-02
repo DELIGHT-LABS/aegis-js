@@ -1,6 +1,6 @@
 import { Share } from "../common/common";
 import { Crypt } from "../crypt";
-import { Version, Protocol } from "./protocol";
+import { Version, Protocol, Packet } from "./protocol";
 
 // v1
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -19,7 +19,7 @@ class VersionV1 implements Protocol {
     return Version.V1;
   }
 
-  pack(v: any): Uint8Array {
+  pack(v: any): Packet {
     const share = v as Share;
     if (!share) {
       throw new Error("protocol argument mismatch");
@@ -30,7 +30,7 @@ class VersionV1 implements Protocol {
     this.share = share;
 
     const packet = JSON.stringify(this, encodeReplacer);
-    return Buffer.from(packet);
+    return new Uint8Array(Buffer.from(packet));
   }
 
   unpack(packet: Uint8Array): any {
