@@ -73,4 +73,4 @@ function decodeReplacer(key: string, value: any) {
 }
 
 export type { Payload, Protocol, Packet };
-export { Version, pack, unpack };
+export { Version, pack, unpack, encodeReplacer, decodeReplacer };

@@ -92,4 +92,5 @@ class Aegis {
   }
 }
 
+export type { Payload };
 export { Aegis };
