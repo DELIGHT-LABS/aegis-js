@@ -64,6 +64,6 @@ test("aegis1", () => {
     ]),
   );
 
-  const res = aegis.combineShares(aegis.payloads, key);
+  const res = aegis.combineShares(key);
   expect(res).toEqual(data);
 });

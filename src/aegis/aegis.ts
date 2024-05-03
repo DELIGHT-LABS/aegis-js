@@ -55,7 +55,7 @@ class Aegis {
     return aegis;
   }
 
-  public combineShares(payloads: Payload[], password: Uint8Array): Secret {
+  public combineShares(password: Uint8Array): Secret {
     // Pre-verification
     if (this.payloads === null || this.payloads.length < NumMinimumShares) {
       throw new Error("error handling");
@@ -65,7 +65,7 @@ class Aegis {
     const shares: Share[] = [];
     let algorithm: Algorithm = Algorithm.Unspecified;
 
-    for (const payload of payloads) {
+    for (const payload of this.payloads) {
       const share: Share = unpack(payload);
       if (share.getAlgorithm() === undefined) {
         throw new Error("invalid type it must be share");
