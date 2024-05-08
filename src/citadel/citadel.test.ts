@@ -27,7 +27,7 @@ test("citadel2", async () => {
   const res = await citadel.retrieve(uuid);
   expect(res.length).toEqual(3);
 
-  const aegis2 = new Aegis(3, 3);
+  const aegis2 = new Aegis();
   aegis2.payloads = res;
   const msg = aegis2.combineShares(key);
   expect(data).toEqual(msg);

@@ -6,15 +6,9 @@ import { NumMinimumShares, Secret, Share, isEqual } from "../common/common";
 type Payload = Uint8Array;
 
 class Aegis {
-  private threshold: number;
-  private total: number;
-
   public payloads: Payload[];
 
-  constructor(threshold: number, total: number) {
-    this.threshold = threshold;
-    this.total = total;
-
+  constructor() {
     this.payloads = [];
   }
 
@@ -27,7 +21,7 @@ class Aegis {
     secret: Secret,
     password: Uint8Array,
   ): Aegis {
-    const aegis = new Aegis(threshold, total);
+    const aegis = new Aegis();
 
     if (threshold < NumMinimumShares) {
       throw new Error("too low threshold");
