@@ -1,16 +1,18 @@
 import { expect, test } from "vitest";
 import { Citadel } from "./citadel";
-import { Aegis } from "../aegis/aegis";
+import { Aegis, Decrypt, Encrypt } from "../aegis/aegis";
 import { Version as ProtocolVersion } from "../protocol";
 import { Algorithm } from "../crypt";
 import { Version as CipherVersion } from "../crypt/cipher/cipher";
 
 test("citadel2", async () => {
   // Test case 1
-  const key = new Uint8Array(Buffer.from("01234567890123456789012345678901"));
+  const password = new Uint8Array(Buffer.from("01234567890123456789012345678901"));
   const data = new Uint8Array(Buffer.from("MESSAGE_1"));
 
-  const aegis = Aegis.dealShares(ProtocolVersion.V1, CipherVersion.V1, Algorithm.NoCryptAlgo, 3, 3, data, key);
+  const encryptedSecret = Encrypt(CipherVersion.V1, data, password);
+
+  const aegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, encryptedSecret);
 
   const token =
     "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1ODhiOTZmYy03ZGFkLTRmNmQtYjczNy1iZDE2YjNmMGZmNTgiLCJzc29fcHJvdmlkZXIiOiJHb29nbGUiLCJpYXQiOjE3MTY1ODc0NjZ9.BvBltHARZwW3gDKFEw5kO1gG_89ikLUJu4Xfx5zpRY2o9j405idWq4kygiC7Iqnga4Zs7VBJF7aBRg_d6gk3Bg";
@@ -27,18 +29,18 @@ test("citadel2", async () => {
   const res = await citadel.retrieve(uuid);
   expect(res.length).toEqual(3);
 
-  const aegis2 = new Aegis();
-  aegis2.payloads = res;
-  const msg = aegis2.combineShares(key);
-  expect(data).toEqual(msg);
+  const encryptedRes = Aegis.combineShares(res);
+
+  const decryptedRes = Decrypt(encryptedRes, password);
+
+  expect(data).toEqual(decryptedRes);
 });
 
 test("citadel retrieve error", async () => {
   // Test case 1
-  const key = new Uint8Array(Buffer.from("01234567890123456789012345678901"));
   const data = new Uint8Array(Buffer.from("MESSAGE_1"));
 
-  const aegis = Aegis.dealShares(ProtocolVersion.V1, CipherVersion.V1, Algorithm.NoCryptAlgo, 3, 3, data, key);
+  const aegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, data);
 
   const token =
     "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1ODhiOTZmYy03ZGFkLTRmNmQtYjczNy1iZDE2YjNmMGZmNTgiLCJzc29fcHJvdmlkZXIiOiJHb29nbGUiLCJpYXQiOjE3MTY1ODc0NjZ9.BvBltHARZwW3gDKFEw5kO1gG_89ikLUJu4Xfx5zpRY2o9j405idWq4kygiC7Iqnga4Zs7VBJF7aBRg_d6gk3Bg";

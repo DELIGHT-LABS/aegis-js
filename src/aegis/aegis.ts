@@ -1,5 +1,5 @@
 import { Version as ProtocolVersion, pack, unpack } from "../protocol";
-import { Version as CipherVersion, Decrypt, Encrypt } from "../crypt/cipher/cipher";
+import { Version as CipherVersion, Decrypt as CipherDecrypt, Encrypt as CipherEncrypt } from "../crypt/cipher/cipher";
 import { Algorithm, Crypt } from "../crypt";
 import { NumMinimumShares, Secret, Share, isEqual } from "../common/common";
 
@@ -14,12 +14,10 @@ class Aegis {
 
   public static dealShares(
     protocolVersion: ProtocolVersion,
-    cipherVersion: CipherVersion,
     algorithm: Algorithm,
     threshold: number,
     total: number,
     secret: Secret,
-    password: Uint8Array,
   ): Aegis {
     const aegis = new Aegis();
 
@@ -27,16 +25,13 @@ class Aegis {
       throw new Error("too low threshold");
     }
 
-    // Encrypt
-    const encrypted = Encrypt(cipherVersion, secret, password);
-
     // Deal
     const algo = Crypt.New(algorithm);
-    const shares = algo.dealShares(encrypted, threshold, total);
+    const shares = algo.dealShares(secret, threshold, total);
 
     // Verify
     const combined = algo.combineShares(shares);
-    if (!isEqual(encrypted, combined)) {
+    if (!isEqual(secret, combined)) {
       throw new Error("shares verification failed");
     }
 
@@ -49,9 +44,9 @@ class Aegis {
     return aegis;
   }
 
-  public combineShares(password: Uint8Array): Secret {
+  public static combineShares(payloads: Payload[]): Secret {
     // Pre-verification
-    if (this.payloads === null || this.payloads.length < NumMinimumShares) {
+    if (payloads === null || payloads.length < NumMinimumShares) {
       throw new Error("error handling");
     }
 
@@ -59,7 +54,7 @@ class Aegis {
     const shares: Share[] = [];
     let algorithm: Algorithm = Algorithm.Unspecified;
 
-    for (const payload of this.payloads) {
+    for (const payload of payloads) {
       const share: Share = unpack(payload);
       if (share.getAlgorithm() === undefined) {
         throw new Error("invalid type it must be share");
@@ -77,14 +72,24 @@ class Aegis {
 
     // Combine
     const algo = Crypt.New(algorithm);
-    const combined = algo.combineShares(shares);
-
-    // Decrypt
-    const decrypted = Decrypt(combined, password);
-
-    return decrypted;
+    return algo.combineShares(shares);
   }
 }
 
+function Encrypt(cVersion: CipherVersion, secret: Secret, password: Uint8Array): Secret {
+  const encrypted = CipherEncrypt(cVersion, secret, password);
+
+  const decrypted = CipherDecrypt(encrypted, password);
+  if (!isEqual(secret, decrypted)) {
+    throw new Error("encryption verification failed");
+  }
+
+  return encrypted;
+}
+
+function Decrypt(secret: Secret, password: Uint8Array): Secret {
+  return CipherDecrypt(secret, password);
+}
+
 export type { Payload };
-export { Aegis };
+export { Aegis, Encrypt, Decrypt };

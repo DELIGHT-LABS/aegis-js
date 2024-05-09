@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { VersionV1 } from "./v1";
+import { Decrypt, Encrypt, Version } from "./cipher";
 
 test("Cipher 1", () => {
   const password = new Uint8Array(Buffer.from("PASSWORD_1"));
@@ -26,5 +27,31 @@ test("Cipher 2", () => {
   );
 
   const decrypted = v1.Decrypt(encrypted, password);
+  expect(decrypted).toEqual(secret);
+});
+
+test("Cipher 1", () => {
+  const password = new Uint8Array(Buffer.from("PASSWORD_1"));
+  const secret = new Uint8Array(Buffer.from("MESSAGE_1"));
+
+  const encrypted = Encrypt(Version.V1, secret, password);
+  expect(Buffer.from(encrypted).toString("base64")).toEqual(
+    "VjEAAAAAAAAAAAAAAAAAAElyU3VpWFo0TDhOQ0hJRFp6TGxmNERRcXczTFBhUkM1dHN6V1k3NUZBT0E9",
+  );
+
+  const decrypted = Decrypt(encrypted, password);
+  expect(decrypted).toEqual(secret);
+});
+
+test("Cipher 1", () => {
+  const password = new Uint8Array(Buffer.from("PASSWORD_2"));
+  const secret = new Uint8Array(Buffer.from("MESSAGE_2"));
+
+  const encrypted = Encrypt(Version.V1, secret, password);
+  expect(Buffer.from(encrypted).toString("base64")).toEqual(
+    "VjEAAAAAAAAAAAAAAAAAAG9UTTRyeE9oREJsNlZEellnbFIrWGVQK3Via2pvckRNNXpIakRXYk12ZzA9",
+  );
+
+  const decrypted = Decrypt(encrypted, password);
   expect(decrypted).toEqual(secret);
 });
