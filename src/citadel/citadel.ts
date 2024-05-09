@@ -6,7 +6,7 @@ interface Fort {
   url: URL;
 }
 
-interface PostSecretResponse {
+interface PutSecretResponse {
   id: string;
 }
 
@@ -27,19 +27,20 @@ class Citadel {
     this.forts = urls.map(url => ({ token, url }));
   }
 
-  public async store(payloads: Payload[], key: Uint8Array) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async store(payloads: Payload[], _key: Uint8Array) {
     if (payloads.length !== this.forts.length) {
       throw new Error("Payloads and Fort do not match");
     }
 
-    const strKey = Buffer.from(key).toString("base64");
+    // const strKey = Buffer.from(key).toString("base64");
 
-    const responses: Promise<PostSecretResponse | ErrorResponse>[] = [];
+    const responses: Promise<PutSecretResponse | ErrorResponse>[] = [];
     for (let i = 0; i < payloads.length; i++) {
       // encode to base64
       const data = Buffer.from(payloads[i]).toString("base64");
 
-      const res = this.postSecret(this.forts[i], strKey, data, true);
+      const res = this.putSecret(this.forts[i], data, true);
       responses.push(res);
     }
 
@@ -53,12 +54,13 @@ class Citadel {
     });
   }
 
-  public async retrieve(key: Uint8Array): Promise<Payload[]> {
-    const strKey = Buffer.from(key).toString("base64");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async retrieve(_key: Uint8Array): Promise<Payload[]> {
+    // const strKey = Buffer.from(key).toString("base64");
 
     const responses: Promise<GetSecretResponse | ErrorResponse>[] = [];
     this.forts.map(async fort => {
-      const res = this.getSecret(fort, strKey);
+      const res = this.getSecret(fort);
       responses.push(res);
     });
 
@@ -84,14 +86,13 @@ class Citadel {
     return res;
   }
 
-  private async postSecret(
+  private async putSecret(
     fort: Fort,
-    id: string,
     secret: string,
     overwrite: boolean = true,
-  ): Promise<PostSecretResponse | ErrorResponse> {
+  ): Promise<PutSecretResponse | ErrorResponse> {
     const response = await fetch(`${fort.url.href}api/v0/secret`, {
-      method: "POST",
+      method: "PUT",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -100,11 +101,10 @@ class Citadel {
       body: JSON.stringify({
         overwrite,
         secret,
-        id,
       }),
     });
 
-    if (!response.ok || response.status !== 200) {
+    if (!response.ok || !(response.status === 200 || response.status === 201)) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -112,7 +112,7 @@ class Citadel {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async getSecret(fort: Fort, id: string): Promise<GetSecretResponse | ErrorResponse> {
+  private async getSecret(fort: Fort): Promise<GetSecretResponse | ErrorResponse> {
     const response = await fetch(`${fort.url.href}api/v0/secret`, {
       method: "GET",
       headers: {
