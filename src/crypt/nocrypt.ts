@@ -38,12 +38,14 @@ class NoCrypt implements ThresholdAlgorithm {
     return Algorithm.NoCryptAlgo;
   }
 
-  dealShares(secret: Secret, _threshold: number, total: number): Share[] {
+  dealShares(secret: Secret, threshold: number, total: number): Share[] {
     const ncShares: NoCryptShare[] = [];
 
     for (let index = 0; index < total; index++) {
       const ncShare = new NoCryptShare();
       ncShare.content = secret;
+      ncShare.threshold = threshold;
+      ncShare.total = total;
       ncShares.push(ncShare);
     }
 
