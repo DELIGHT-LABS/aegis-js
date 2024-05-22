@@ -13,7 +13,7 @@
     "format": "prettier --write ."
   },
   "engines": {
-    "node": "^18.18.0",
+    "node": ">18.18.0",
     "npm": "USE YARN"
   },
   "devDependencies": {

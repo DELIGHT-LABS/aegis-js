@@ -1,4 +1,4 @@
-import { ThresholdAlgorithm, Share } from "../common/common";
+import { ThresholdAlgorithm, Share } from "../common/common";
 import { NoCrypt, NoCryptShare } from "../crypt/nocrypt";
 import { Ed25519ThresholdV0, Ed25519ThresholdV0Share } from "../crypt/ed25519_threshold";
 

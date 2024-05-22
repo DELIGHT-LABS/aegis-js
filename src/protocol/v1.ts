@@ -1,4 +1,4 @@
-import { Share } from "../common/common";
+import { Share } from "../common/common";
 import { Crypt } from "../crypt";
 import { Version, Protocol, Packet } from "./protocol";
 

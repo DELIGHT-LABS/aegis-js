@@ -1,4 +1,4 @@
-import { Secret } from "../../common/common";
+import { Secret } from "../../common/common";
 import { VersionV1 } from "./v1";
 
 export enum Version {

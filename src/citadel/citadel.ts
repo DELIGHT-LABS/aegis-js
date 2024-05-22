@@ -1,5 +1,5 @@
 import { URL } from "url";
-import { Payload } from "../aegis/aegis";
+import { AegisPayload } from "../aegis/aegis";
 
 interface Fort {
   token: string;
@@ -28,7 +28,7 @@ class Citadel {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async store(payloads: Payload[], _key: Uint8Array) {
+  public async store(payloads: AegisPayload[], _key: Uint8Array) {
     if (payloads.length !== this.forts.length) {
       throw new Error("Payloads and Fort do not match");
     }
@@ -55,7 +55,7 @@ class Citadel {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async retrieve(_key: Uint8Array): Promise<Payload[]> {
+  public async retrieve(_key: Uint8Array): Promise<AegisPayload[]> {
     // const strKey = Buffer.from(key).toString("base64");
 
     const responses: Promise<GetSecretResponse | ErrorResponse>[] = [];
@@ -64,7 +64,7 @@ class Citadel {
       responses.push(res);
     });
 
-    const res: Payload[] = [];
+    const res: AegisPayload[] = [];
     await Promise.allSettled(responses).then(promisedRes => {
       for (let i = 0; i < promisedRes.length; i++) {
         if (promisedRes[i].status === "rejected") {

@@ -1,4 +1,4 @@
-import { Secret } from "../../common/common";
+import { Secret } from "../../common/common";
 import { encrypt, decrypt } from "./aes";
 import { Blake2b } from "./hash";
 

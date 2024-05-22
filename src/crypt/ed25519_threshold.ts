@@ -1,4 +1,4 @@
-import { Share, ThresholdAlgorithm } from "common/common";
+import { Share, ThresholdAlgorithm } from "common/common";
 import { Algorithm } from "./crypt";
 
 interface Part {
@@ -31,14 +31,14 @@ class Ed25519ThresholdV0 implements ThresholdAlgorithm {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  dealShares(secret: Uint8Array): Share[] {
+  dealShares(_secret: Uint8Array): Share[] {
     // TODO
     const shares: Share[] = [];
     return shares;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  combineShares(shares: Share[]): Uint8Array {
+  combineShares(_shares: Share[]): Uint8Array {
     // TODO
     const secret: number[] = [];
     return new Uint8Array(secret);

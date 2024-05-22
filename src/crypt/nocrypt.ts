@@ -1,4 +1,4 @@
-import { ThresholdAlgorithm, Share, Secret, NumMinimumShares } from "../common/common";
+import { ThresholdAlgorithm, Share, Secret, NumMinimumShares } from "../common/common";
 import { Algorithm } from "./crypt";
 
 class NoCryptShare implements Share {

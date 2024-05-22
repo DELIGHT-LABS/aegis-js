@@ -1,5 +1,5 @@
-import { Secret } from "../../../common/common";
-import * as crypto from "crypto";
+import { Secret } from "../../../common/common";
+import * as crypto from "node:crypto";
 
 const hmacLen = 16;
 

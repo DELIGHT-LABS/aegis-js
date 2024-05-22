@@ -1,12 +1,12 @@
 import { Version as ProtocolVersion, pack, unpack } from "../protocol";
 import { Version as CipherVersion, Decrypt as CipherDecrypt, Encrypt as CipherEncrypt } from "../crypt/cipher/cipher";
 import { Algorithm, Crypt } from "../crypt";
-import { NumMinimumShares, Secret, Share, isEqual } from "../common/common";
+import { NumMinimumShares, Secret, Share, isEqual } from "../common/common";
 
-type Payload = Uint8Array;
+type AegisPayload = Uint8Array;
 
 class Aegis {
-  public payloads: Payload[];
+  public payloads: AegisPayload[];
 
   constructor() {
     this.payloads = [];
@@ -44,7 +44,7 @@ class Aegis {
     return aegis;
   }
 
-  public static combineShares(payloads: Payload[]): Secret {
+  public static combineShares(payloads: AegisPayload[]): Secret {
     // Pre-verification
     if (payloads === null || payloads.length < NumMinimumShares) {
       throw new Error("error handling");
@@ -91,5 +91,5 @@ function Decrypt(secret: Secret, password: Uint8Array): Secret {
   return CipherDecrypt(secret, password);
 }
 
-export type { Payload };
+export type { AegisPayload };
 export { Aegis, Encrypt, Decrypt };
