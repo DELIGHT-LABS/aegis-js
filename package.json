@@ -1,7 +1,7 @@
 {
   "name": "aegis-js",
   "license": "MIT",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -13,7 +13,7 @@
     "format": "prettier --write ."
   },
   "engines": {
-    "node": ">=20",
+    "node": ">18.18.0",
     "npm": "USE YARN"
   },
   "devDependencies": {
@@ -30,5 +30,9 @@
     "vite": "^5.2.0",
     "vite-plugin-dts": "^3.9.0",
     "vitest": "^1.5.2"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.4.0",
+    "node-fetch": "^3.3.2"
   }
 }

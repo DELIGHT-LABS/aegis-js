@@ -7,8 +7,8 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "Aegis",
-      formats: ["es"],
-      fileName: "aegis",
+      formats: ["es", "cjs"],
+      fileName: "index",
     },
   },
   plugins: [dts()],
