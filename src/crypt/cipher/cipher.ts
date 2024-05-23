@@ -1,3 +1,4 @@
+import { Packet } from "protocol";
 import { Secret } from "../../common/common";
 import { VersionV1 } from "./v1";
 
@@ -6,46 +7,59 @@ export enum Version {
   V1 = "V1",
 }
 
-const versionHeaderLen = 16;
+interface CipherPacket {
+  version: Version;
+  cipherText: Uint8Array;
+}
 
-function Encrypt(version: Version, plainText: Secret, password: Uint8Array): Secret {
-  let encrypted: Secret;
+function Encrypt(version: Version, plainText: Secret, password: Uint8Array): Packet {
+  let packet: CipherPacket;
+  let encrypted: Uint8Array;
   switch (version) {
     case Version.V1:
       encrypted = new VersionV1().Encrypt(plainText, password);
+
+      packet = {
+        version: Version.V1,
+        cipherText: encrypted,
+      };
       break;
     default:
       throw new Error("Unsupported cipher version");
   }
 
-  // XXX: append cipher version
-  const v = new Uint8Array(versionHeaderLen);
-  v.set(new TextEncoder().encode(version));
-  encrypted = new Uint8Array([...v, ...encrypted]);
-
-  return encrypted;
+  return new Uint8Array(Buffer.from(JSON.stringify(packet, encodeReplacer)));
 }
 
-function Decrypt(cipherText: Secret, password: Uint8Array): Secret {
-  // eslint-disable-next-line no-control-regex
-  const version = new TextDecoder()
-    .decode(cipherText.slice(0, versionHeaderLen))
-    .trimEnd()
-    // eslint-disable-next-line no-control-regex
-    .replace(/\x00*$/g, "");
-  const encrypted = cipherText.slice(versionHeaderLen);
+function Decrypt(cipherText: Secret, password: Uint8Array): Packet {
+  const cipher: CipherPacket = JSON.parse(Buffer.from(cipherText).toString(), decodeReplacer);
 
   let decrypted: Secret;
-
-  switch (version as Version) {
+  switch (cipher.version) {
     case Version.V1:
-      decrypted = new VersionV1().Decrypt(encrypted, password);
+      decrypted = new VersionV1().Decrypt(cipher.cipherText, password);
       break;
     default:
       throw new Error("Unsupported cipher version");
   }
 
   return decrypted;
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any*/
+function encodeReplacer(key: string, value: any) {
+  if (key === "cipherText") {
+    return Buffer.from(value).toString("base64");
+  }
+  return value;
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any*/
+function decodeReplacer(key: string, value: any) {
+  if (key === "cipherText") {
+    return new Uint8Array(Buffer.from(value, "base64"));
+  }
+  return value;
 }
 
 export { Encrypt, Decrypt };

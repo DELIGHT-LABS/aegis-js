@@ -1,6 +1,6 @@
-import { Share } from "../common/common";
+import { Packet, Share } from "../common/common";
 import { Crypt } from "../crypt";
-import { Version, Protocol, Packet } from "./protocol";
+import { Version, Protocol } from "./protocol";
 
 // v1
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -33,7 +33,7 @@ class VersionV1 implements Protocol {
     return new Uint8Array(Buffer.from(packet));
   }
 
-  unpack(packet: Uint8Array): any {
+  unpack(packet: Packet): any {
     const jsonPacket = Buffer.from(packet).toString();
     const v1: VersionV1 = JSON.parse(jsonPacket, decodeReplacer);
 

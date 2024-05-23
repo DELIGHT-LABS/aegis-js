@@ -22,7 +22,7 @@ test("encrypt & decrypt 1", () => {
 
   const encrypted = Encrypt(CipherVersion.V1, secret, password);
   expect(Buffer.from(encrypted).toString("base64")).toEqual(
-    "VjEAAAAAAAAAAAAAAAAAAElyU3VpWFo0TDhOQ0hJRFp6TGxmNERRcXczTFBhUkM1dHN6V1k3NUZBT0E9",
+    "eyJ2ZXJzaW9uIjoiVjEiLCJjaXBoZXJUZXh0IjoiU1hKVGRXbFlXalJNT0U1RFNFbEVXbnBNYkdZMFJGRnhkek5NVUdGU1F6VjBjM3BYV1RjMVJrRlBRVDA9In0=",
   );
 
   const decrypted = Decrypt(encrypted, password);
@@ -35,7 +35,7 @@ test("encrypt & decrypt 2", () => {
 
   const encrypted = Encrypt(CipherVersion.V1, secret, password);
   expect(Buffer.from(encrypted).toString("base64")).toEqual(
-    "VjEAAAAAAAAAAAAAAAAAAG9UTTRyeE9oREJsNlZEellnbFIrWGVQK3Via2pvckRNNXpIakRXYk12ZzA9",
+    "eyJ2ZXJzaW9uIjoiVjEiLCJjaXBoZXJUZXh0IjoiYjFSTk5ISjRUMmhFUW13MlZrUjZXV2RzVWl0WVpWQXJkV0pyYW05eVJFMDFla2hxUkZkaVRYWm5NRDA9In0=",
   );
 
   const decrypted = Decrypt(encrypted, password);

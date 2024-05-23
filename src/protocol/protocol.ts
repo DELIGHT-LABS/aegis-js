@@ -1,4 +1,5 @@
 import { VersionV1 } from "./v1";
+import { Packet } from "../common/common";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface Protocol {
@@ -12,8 +13,6 @@ enum Version {
   V0 = "V0",
   V1 = "V1",
 }
-
-type Packet = Uint8Array;
 
 interface Payload {
   protocol_version: Version;

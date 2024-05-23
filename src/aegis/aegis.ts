@@ -1,4 +1,4 @@
-import { Version as ProtocolVersion, pack, unpack } from "../protocol";
+import { Packet, Version as ProtocolVersion, pack, unpack } from "../protocol";
 import { Version as CipherVersion, Decrypt as CipherDecrypt, Encrypt as CipherEncrypt } from "../crypt/cipher/cipher";
 import { Algorithm, Crypt } from "../crypt";
 import { NumMinimumShares, Secret, Share, isEqual } from "../common/common";
@@ -76,7 +76,7 @@ class Aegis {
   }
 }
 
-function Encrypt(cVersion: CipherVersion, secret: Secret, password: Uint8Array): Secret {
+function Encrypt(cVersion: CipherVersion, secret: Secret, password: Uint8Array): Packet {
   const encrypted = CipherEncrypt(cVersion, secret, password);
 
   const decrypted = CipherDecrypt(encrypted, password);
@@ -87,7 +87,7 @@ function Encrypt(cVersion: CipherVersion, secret: Secret, password: Uint8Array):
   return encrypted;
 }
 
-function Decrypt(secret: Secret, password: Uint8Array): Secret {
+function Decrypt(secret: Packet, password: Uint8Array): Secret {
   return CipherDecrypt(secret, password);
 }
 

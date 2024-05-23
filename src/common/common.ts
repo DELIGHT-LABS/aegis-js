@@ -2,6 +2,8 @@ import { Algorithm } from "crypt";
 
 const NumMinimumShares = 3;
 
+type Packet = Uint8Array;
+
 type Secret = Uint8Array;
 
 function isEqual(s: Secret, s2: Secret): boolean {
@@ -14,10 +16,10 @@ interface ThresholdAlgorithm {
   combineShares(shares: Share[]): Secret;
 }
 
-export interface Share {
+interface Share {
   getAlgorithm(): Algorithm;
   serialize(): Uint8Array;
 }
 
-export type { ThresholdAlgorithm, Secret };
+export type { ThresholdAlgorithm, Secret, Packet, Share };
 export { NumMinimumShares, isEqual };
