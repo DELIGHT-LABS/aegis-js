@@ -12,12 +12,12 @@ interface CipherPacket {
   cipherText: Uint8Array;
 }
 
-function Encrypt(version: Version, plainText: Secret, password: Uint8Array): Packet {
+function Encrypt(version: Version, plainText: Secret, password: Uint8Array, salt: Uint8Array): Packet {
   let packet: CipherPacket;
   let encrypted: Uint8Array;
   switch (version) {
     case Version.V1:
-      encrypted = new VersionV1().Encrypt(plainText, password);
+      encrypted = new VersionV1().Encrypt(plainText, password, salt);
 
       packet = {
         version: Version.V1,
@@ -31,13 +31,13 @@ function Encrypt(version: Version, plainText: Secret, password: Uint8Array): Pac
   return new Uint8Array(Buffer.from(JSON.stringify(packet, encodeReplacer)));
 }
 
-function Decrypt(cipherText: Secret, password: Uint8Array): Packet {
+function Decrypt(cipherText: Secret, password: Uint8Array, salt: Uint8Array): Packet {
   const cipher: CipherPacket = JSON.parse(Buffer.from(cipherText).toString(), decodeReplacer);
 
   let decrypted: Secret;
   switch (cipher.version) {
     case Version.V1:
-      decrypted = new VersionV1().Decrypt(cipher.cipherText, password);
+      decrypted = new VersionV1().Decrypt(cipher.cipherText, password, salt);
       break;
     default:
       throw new Error("Unsupported cipher version");

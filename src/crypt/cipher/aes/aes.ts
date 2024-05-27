@@ -1,46 +1,37 @@
 import { Secret } from "../../../common/common";
 import * as crypto from "node:crypto";
 
-const hmacLen = 16;
+const nonceLen = 12;
+const tagLen = 16;
 
-export function encrypt(plainText: Secret, key: Uint8Array, ivKey: Uint8Array): Secret {
-  // Append ivKey as HMAC
-  const hmacText = Buffer.concat([ivKey, plainText]);
+export function encryptGCM(plainText: Secret, key: Uint8Array): Secret {
+  const nonce = crypto.randomBytes(nonceLen);
 
   // Encrypt
-  const cipher = crypto.createCipheriv("aes-256-cbc", key, ivKey);
-  const cipherInfo = crypto.getCipherInfo("aes-256-cbc");
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, nonce);
+  const cipherInfo = crypto.getCipherInfo("aes-256-gcm");
   if (cipherInfo === undefined || cipherInfo.blockSize === undefined) {
     throw new Error("cipherInfo is null");
   }
-  const paddedPlainText = padPKCS7(hmacText, cipherInfo.blockSize);
 
-  const cipherText = cipher.update(paddedPlainText);
+  const cipherText = Buffer.concat([nonce, cipher.update(plainText), cipher.final(), cipher.getAuthTag()]);
 
   // base64 encoding
   const encodingCiperText = cipherText.toString("base64");
   return new Uint8Array(Buffer.from(encodingCiperText));
 }
 
-export function decrypt(cipherText: Uint8Array, key: Uint8Array, ivKey: Uint8Array): Secret {
+export function decryptGCM(cipherText: Uint8Array, key: Uint8Array): Secret {
   // Decode
   const decoded = new Uint8Array(Buffer.from(Buffer.from(cipherText).toString(), "base64"));
+  const nonce = decoded.slice(0, nonceLen);
+  const encrypted = decoded.slice(nonceLen, decoded.length - tagLen);
+  const tag = decoded.slice(-tagLen);
 
   // Decrypt
-  const decipher = crypto.createDecipheriv("aes-256-cbc", key, ivKey);
-  const data = decipher.update(decoded);
-  const decryptedText = Buffer.concat([data, decipher.final()]);
+  const decipher = crypto.createDecipheriv("aes-256-gcm", key, nonce);
+  decipher.setAuthTag(tag);
+  const data = decipher.update(encrypted);
 
-  const hmac = decryptedText.subarray(0, hmacLen);
-  if (!Buffer.from(ivKey).equals(hmac)) {
-    throw new Error("wrong key");
-  }
-
-  return new Uint8Array(decryptedText.subarray(hmacLen));
-}
-
-function padPKCS7(plainText: Buffer, blockSize: number): Uint8Array {
-  const padding = blockSize - (plainText.length % blockSize);
-  const padText = Buffer.alloc(padding, padding);
-  return new Uint8Array(Buffer.concat([plainText, padText]));
+  return new Uint8Array(data);
 }

@@ -76,10 +76,10 @@ class Aegis {
   }
 }
 
-function Encrypt(cVersion: CipherVersion, secret: Secret, password: Uint8Array): Packet {
-  const encrypted = CipherEncrypt(cVersion, secret, password);
+function Encrypt(cVersion: CipherVersion, secret: Secret, password: Uint8Array, salt: Uint8Array): Packet {
+  const encrypted = CipherEncrypt(cVersion, secret, password, salt);
 
-  const decrypted = CipherDecrypt(encrypted, password);
+  const decrypted = CipherDecrypt(encrypted, password, salt);
   if (!isEqual(secret, decrypted)) {
     throw new Error("encryption verification failed");
   }
@@ -87,8 +87,8 @@ function Encrypt(cVersion: CipherVersion, secret: Secret, password: Uint8Array):
   return encrypted;
 }
 
-function Decrypt(secret: Packet, password: Uint8Array): Secret {
-  return CipherDecrypt(secret, password);
+function Decrypt(secret: Packet, password: Uint8Array, salt: Uint8Array): Secret {
+  return CipherDecrypt(secret, password, salt);
 }
 
 export type { AegisPayload };

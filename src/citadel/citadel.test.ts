@@ -9,8 +9,9 @@ test("citadel2", async () => {
   // Test case 1
   const password = new Uint8Array(Buffer.from("01234567890123456789012345678901"));
   const data = new Uint8Array(Buffer.from("MESSAGE_1"));
+  const salt = new Uint8Array(Buffer.from("SALT_1"));
 
-  const encryptedSecret = Encrypt(CipherVersion.V1, data, password);
+  const encryptedSecret = Encrypt(CipherVersion.V1, data, password, salt);
 
   const aegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, encryptedSecret);
 
@@ -31,7 +32,7 @@ test("citadel2", async () => {
 
   const encryptedRes = Aegis.combineShares(res);
 
-  const decryptedRes = Decrypt(encryptedRes, password);
+  const decryptedRes = Decrypt(encryptedRes, password, salt);
 
   expect(data).toEqual(decryptedRes);
 });

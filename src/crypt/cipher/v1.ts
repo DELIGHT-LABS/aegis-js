@@ -1,33 +1,32 @@
 import { Secret } from "../../common/common";
-import { encrypt, decrypt } from "./aes";
+import { encryptGCM, decryptGCM } from "./aes";
 import { Blake2b } from "./hash";
 
 const aesKeyLen = 32;
-const aesIvKeyLen = 16;
 
 export class VersionV1 {
-  public Encrypt(plainText: Secret, password: Uint8Array): Secret {
+  public Encrypt(plainText: Secret, password: Uint8Array, salt: Uint8Array): Secret {
     // Prepare key
-    const hashedKey = Blake2b(aesKeyLen, password);
-
-    // Prepare IvKey
-    const ivKey = Blake2b(aesIvKeyLen, password);
+    const key = new Uint8Array(password.length + salt.length);
+    key.set(password);
+    key.set(salt, password.length);
+    const hashedKey = Blake2b(aesKeyLen, key);
 
     // Encrypt
-    const encrypted = encrypt(plainText, hashedKey, ivKey);
+    const encrypted = encryptGCM(plainText, hashedKey);
 
     return encrypted;
   }
 
-  public Decrypt(cipherText: Secret, password: Uint8Array): Secret {
+  public Decrypt(cipherText: Secret, password: Uint8Array, salt: Uint8Array): Secret {
     // Prepare key
-    const hashedKey = Blake2b(aesKeyLen, password);
-
-    // Prepare IvKey
-    const ivKey = Blake2b(aesIvKeyLen, password);
+    const key = new Uint8Array(password.length + salt.length);
+    key.set(password);
+    key.set(salt, password.length);
+    const hashedKey = Blake2b(aesKeyLen, key);
 
     // Decrypt
-    const decrypted = decrypt(cipherText, hashedKey, ivKey);
+    const decrypted = decryptGCM(cipherText, hashedKey);
 
     return decrypted;
   }
