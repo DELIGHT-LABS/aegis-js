@@ -1,12 +1,10 @@
-import { Packet, Version as ProtocolVersion, pack, unpack } from "../protocol";
+import { Version as ProtocolVersion, pack, unpack } from "../protocol";
 import { Version as CipherVersion, Decrypt as CipherDecrypt, Encrypt as CipherEncrypt } from "../crypt/cipher/cipher";
 import { Algorithm, Crypt } from "../crypt";
 import { NumMinimumShares, Secret, Share, isEqual } from "../common/common";
 
-type AegisPayload = Uint8Array;
-
 class Aegis {
-  public payloads: AegisPayload[];
+  public payloads: string[];
 
   constructor() {
     this.payloads = [];
@@ -44,7 +42,7 @@ class Aegis {
     return aegis;
   }
 
-  public static combineShares(payloads: AegisPayload[]): Secret {
+  public static combineShares(payloads: string[]): Secret {
     // Pre-verification
     if (payloads === null || payloads.length < NumMinimumShares) {
       throw new Error("error handling");
@@ -76,7 +74,7 @@ class Aegis {
   }
 }
 
-function Encrypt(cVersion: CipherVersion, secret: Secret, password: Uint8Array, salt: Uint8Array): Packet {
+function Encrypt(cVersion: CipherVersion, secret: Secret, password: Uint8Array, salt: Uint8Array): string {
   const encrypted = CipherEncrypt(cVersion, secret, password, salt);
 
   const decrypted = CipherDecrypt(encrypted, password, salt);
@@ -87,9 +85,8 @@ function Encrypt(cVersion: CipherVersion, secret: Secret, password: Uint8Array, 
   return encrypted;
 }
 
-function Decrypt(secret: Packet, password: Uint8Array, salt: Uint8Array): Secret {
+function Decrypt(secret: string, password: Uint8Array, salt: Uint8Array): Secret {
   return CipherDecrypt(secret, password, salt);
 }
 
-export type { AegisPayload };
 export { Aegis, Encrypt, Decrypt };

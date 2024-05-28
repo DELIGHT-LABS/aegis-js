@@ -5,15 +5,38 @@ import { Version as ProtocolVersion } from "../protocol";
 import { Algorithm } from "../crypt";
 import { Version as CipherVersion } from "../crypt/cipher/cipher";
 
+interface TestAegisSecret {
+  wallet: TestWallet[];
+}
+
+interface TestWallet {
+  address: string;
+  name: string;
+  publicKey: string;
+  encrypted: string;
+}
+
 test("citadel2", async () => {
   // Test case 1
   const password = new Uint8Array(Buffer.from("01234567890123456789012345678901"));
   const data = new Uint8Array(Buffer.from("MESSAGE_1"));
   const salt = new Uint8Array(Buffer.from("SALT_1"));
 
-  const encryptedSecret = Encrypt(CipherVersion.V1, data, password, salt);
+  const encrytpedData = Encrypt(CipherVersion.V1, data, password, salt);
 
-  const aegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, encryptedSecret);
+  const aegisSecretData: TestAegisSecret = {
+    wallet: [
+      {
+        address: "xpla1xxxx",
+        name: "name1",
+        publicKey: "publicKey1",
+        encrypted: encrytpedData,
+      },
+    ],
+  };
+  const secret = new Uint8Array(Buffer.from(JSON.stringify(aegisSecretData)));
+
+  const aegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, secret);
 
   const token =
     "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ5b3VuZ0BkZWxpZ2h0bGFicy5pbyIsImV4cCI6MTc0Njc4NDczMCwianRpIjoiOGJmYTVkMjgtZjkxZi00YmQ3LTgxYTMtZGM4NjllYWVkNmYyIiwic3NvX3Byb3ZpZGVyIjoiR29vZ2xlIn0.ukJ0gYQsZRE8gktRtzxA6cfPH97zWzwLTmU8DODX9sOSwnLPJ0dFFssTbQm0WE-Cfl95COAAl6WwuQ6NSVEIDg";
@@ -32,7 +55,9 @@ test("citadel2", async () => {
 
   const encryptedRes = Aegis.combineShares(res);
 
-  const decryptedRes = Decrypt(encryptedRes, password, salt);
+  const resAegisSecret: TestAegisSecret = JSON.parse(Buffer.from(encryptedRes).toString());
+
+  const decryptedRes = Decrypt(resAegisSecret.wallet[0].encrypted, password, salt);
 
   expect(data).toEqual(decryptedRes);
 });

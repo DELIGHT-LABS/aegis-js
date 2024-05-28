@@ -1,5 +1,4 @@
 import { URL } from "url";
-import { AegisPayload } from "../aegis/aegis";
 
 interface Fort {
   token: string;
@@ -28,7 +27,7 @@ class Citadel {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async store(payloads: AegisPayload[], _key: Uint8Array) {
+  public async store(payloads: string[], _key: Uint8Array) {
     if (payloads.length !== this.forts.length) {
       throw new Error("Payloads and Fort do not match");
     }
@@ -37,10 +36,7 @@ class Citadel {
 
     const responses: Promise<PutSecretResponse | ErrorResponse>[] = [];
     for (let i = 0; i < payloads.length; i++) {
-      // encode to base64
-      const data = Buffer.from(payloads[i]).toString("base64");
-
-      const res = this.putSecret(this.forts[i], data, true);
+      const res = this.putSecret(this.forts[i], payloads[i], true);
       responses.push(res);
     }
 
@@ -55,7 +51,7 @@ class Citadel {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async retrieve(_key: Uint8Array): Promise<AegisPayload[]> {
+  public async retrieve(_key: Uint8Array): Promise<string[]> {
     // const strKey = Buffer.from(key).toString("base64");
 
     const responses: Promise<GetSecretResponse | ErrorResponse>[] = [];
@@ -64,7 +60,7 @@ class Citadel {
       responses.push(res);
     });
 
-    const res: AegisPayload[] = [];
+    const res: string[] = [];
     await Promise.allSettled(responses).then(promisedRes => {
       for (let i = 0; i < promisedRes.length; i++) {
         if (promisedRes[i].status === "rejected") {
@@ -79,7 +75,7 @@ class Citadel {
           continue;
         }
         const p = pr as PromiseFulfilledResult<GetSecretResponse>;
-        res.push(Buffer.from(p.value.secret, "base64"));
+        res.push(p.value.secret);
       }
     });
 

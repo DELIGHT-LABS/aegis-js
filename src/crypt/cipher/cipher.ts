@@ -1,4 +1,3 @@
-import { Packet } from "protocol";
 import { Secret } from "../../common/common";
 import { VersionV1 } from "./v1";
 
@@ -12,7 +11,7 @@ interface CipherPacket {
   cipherText: Uint8Array;
 }
 
-function Encrypt(version: Version, plainText: Secret, password: Uint8Array, salt: Uint8Array): Packet {
+function Encrypt(version: Version, plainText: Secret, password: Uint8Array, salt: Uint8Array): string {
   let packet: CipherPacket;
   let encrypted: Uint8Array;
   switch (version) {
@@ -28,11 +27,13 @@ function Encrypt(version: Version, plainText: Secret, password: Uint8Array, salt
       throw new Error("Unsupported cipher version");
   }
 
-  return new Uint8Array(Buffer.from(JSON.stringify(packet, encodeReplacer)));
+  return Buffer.from(JSON.stringify(packet, encodeReplacer)).toString("base64");
 }
 
-function Decrypt(cipherText: Secret, password: Uint8Array, salt: Uint8Array): Packet {
-  const cipher: CipherPacket = JSON.parse(Buffer.from(cipherText).toString(), decodeReplacer);
+function Decrypt(packet: string, password: Uint8Array, salt: Uint8Array): Secret {
+  const decoded = Buffer.from(packet, "base64");
+
+  const cipher: CipherPacket = JSON.parse(decoded.toString(), decodeReplacer);
 
   let decrypted: Secret;
   switch (cipher.version) {

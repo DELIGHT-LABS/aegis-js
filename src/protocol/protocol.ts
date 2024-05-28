@@ -19,7 +19,7 @@ interface Payload {
   packet: Packet;
 }
 
-function pack(version: Version, v: any): Uint8Array {
+function pack(version: Version, v: any): string {
   const p: Payload = {
     protocol_version: version,
     packet: new Uint8Array(),
@@ -33,11 +33,14 @@ function pack(version: Version, v: any): Uint8Array {
   p.packet = pc.pack(v);
 
   const data = JSON.stringify(p, encodeReplacer);
-  return new Uint8Array(Buffer.from(data));
+
+  return Buffer.from(data).toString("base64");
 }
 
-function unpack(data: Uint8Array): any {
-  const p: Payload = JSON.parse(Buffer.from(data).toString(), decodeReplacer);
+function unpack(data: string): any {
+  const deconded = Buffer.from(data, "base64");
+
+  const p: Payload = JSON.parse(deconded.toString(), decodeReplacer);
 
   const pc = getProtocol(p.protocol_version);
   if (!pc) {
