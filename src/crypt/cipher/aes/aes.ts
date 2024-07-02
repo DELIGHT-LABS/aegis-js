@@ -9,11 +9,6 @@ export function encryptGCM(plainText: Secret, key: Uint8Array): Secret {
 
   // Encrypt
   const cipher = crypto.createCipheriv("aes-256-gcm", key, nonce);
-  const cipherInfo = crypto.getCipherInfo("aes-256-gcm");
-  if (cipherInfo === undefined || cipherInfo.blockSize === undefined) {
-    throw new Error("cipherInfo is null");
-  }
-
   const cipherText = Buffer.concat([nonce, cipher.update(plainText), cipher.final(), cipher.getAuthTag()]);
 
   // base64 encoding
