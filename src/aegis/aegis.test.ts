@@ -4,6 +4,17 @@ import { expect, test } from "vitest";
 import { Algorithm } from "../crypt";
 import { Version as CipherVersion } from "../crypt/cipher/cipher";
 
+const oldSecret = new Uint8Array(Buffer.from("OLD_SECRET"));
+const oldAegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 5, oldSecret);
+const oldPayloads = oldAegis.payloads;
+
+// for diffrent timestamps
+await new Promise(resolve => setTimeout(resolve, 1000));
+
+const newSecret = new Uint8Array(Buffer.from("NEW_SECRET"));
+const newAegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 5, newSecret);
+const newPayloads = newAegis.payloads;
+
 test("aegis1", () => {
   // Test case 1
   const data = new Uint8Array(Buffer.from("MESSAGE_1"));
@@ -14,6 +25,20 @@ test("aegis1", () => {
 
   const res = Aegis.combineShares(aegis.payloads);
   expect(res).toEqual(data);
+});
+
+test("aegis - picking majority - new is majority", () => {
+  const payloads = [oldPayloads[0], newPayloads[1], newPayloads[2], newPayloads[3], newPayloads[4]];
+
+  const res = Aegis.combineShares(payloads);
+  expect(res).toEqual(newSecret);
+});
+
+test("aegis - picking majority - new is minority", () => {
+  const payloads = [oldPayloads[0], oldPayloads[1], oldPayloads[2], newPayloads[3], newPayloads[4]];
+
+  const res = Aegis.combineShares(payloads);
+  expect(res).toEqual(oldSecret);
 });
 
 test("encrypt & decrypt 1", () => {

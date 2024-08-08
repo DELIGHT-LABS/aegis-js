@@ -7,6 +7,7 @@ import { Version, Protocol } from "./protocol";
 class VersionV1 implements Protocol {
   private crypt_algorithm: string;
   private share_packet: Uint8Array;
+
   private share: Share;
 
   constructor() {
@@ -27,7 +28,6 @@ class VersionV1 implements Protocol {
 
     this.crypt_algorithm = share.getAlgorithm();
     this.share_packet = share.serialize();
-    this.share = share;
 
     const packet = JSON.stringify(this, encodeReplacer);
     return new Uint8Array(Buffer.from(packet));

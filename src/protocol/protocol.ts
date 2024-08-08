@@ -15,12 +15,14 @@ enum Version {
 }
 
 interface Payload {
+  timestamp: number | undefined;
   protocol_version: Version;
   packet: Packet;
 }
 
-function pack(version: Version, v: any): string {
+function pack(version: Version, v: any, timestamp: number): string {
   const p: Payload = {
+    timestamp,
     protocol_version: version,
     packet: new Uint8Array(),
   };
@@ -37,17 +39,20 @@ function pack(version: Version, v: any): string {
   return Buffer.from(data).toString("base64");
 }
 
-function unpack(data: string): any {
+function unpack(data: string): [any, number] {
   const deconded = Buffer.from(data, "base64");
 
   const p: Payload = JSON.parse(deconded.toString(), decodeReplacer);
+  if (p.timestamp === undefined) {
+    p.timestamp = 0;
+  }
 
   const pc = getProtocol(p.protocol_version);
   if (!pc) {
     throw new Error("Unsupported protocol");
   }
 
-  return pc.unpack(p.packet);
+  return [pc.unpack(p.packet), p.timestamp];
 }
 
 function getProtocol(version: Version): Protocol | null {

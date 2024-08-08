@@ -33,9 +33,11 @@ class Aegis {
       throw new Error("shares verification failed");
     }
 
+    const timestamp = Date.now();
+
     // Pack
     shares.forEach((share, index) => {
-      const packed = pack(protocolVersion, share);
+      const packed = pack(protocolVersion, share, timestamp);
       aegis.payloads[index] = packed;
     });
 
@@ -49,18 +51,33 @@ class Aegis {
     }
 
     // Unpack
-    const shares: Share[] = [];
-    let algorithm: Algorithm = Algorithm.Unspecified;
+    const timestampToShares = new Map<number, Share[]>();
 
     for (const payload of payloads) {
-      const share: Share = unpack(payload);
-      if (share.getAlgorithm() === undefined) {
-        throw new Error("invalid type it must be share");
+      const [unpacked, timestamp] = unpack(payload);
+
+      const share = unpacked as Share;
+      if (share == null) {
+        throw new Error("type mismatch");
       }
 
+      const shares = timestampToShares.get(timestamp) || [];
       shares.push(share);
+      timestampToShares.set(timestamp, shares);
+    }
 
-      // validation
+    // Pick majority shares
+    let majorityShares: Share[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const [_, shares] of timestampToShares) {
+      if (majorityShares.length < shares.length) {
+        majorityShares = shares;
+      }
+    }
+
+    // validation
+    let algorithm = Algorithm.Unspecified;
+    for (const share of majorityShares) {
       if (algorithm === Algorithm.Unspecified) {
         algorithm = share.getAlgorithm();
       } else if (algorithm !== share.getAlgorithm()) {
@@ -70,7 +87,7 @@ class Aegis {
 
     // Combine
     const algo = Crypt.New(algorithm);
-    return algo.combineShares(shares);
+    return algo.combineShares(majorityShares);
   }
 }
 
