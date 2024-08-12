@@ -29,5 +29,5 @@ test("compatibility without timestamp", () => {
   const [unpacked, ts] = unpack(packed);
 
   expect(unpacked).toEqual(share);
-  expect(0).toEqual(ts);
+  expect(ts).toEqual(0);
 });
