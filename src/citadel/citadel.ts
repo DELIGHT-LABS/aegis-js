@@ -1,3 +1,4 @@
+import { Checksum } from "../crypt/cipher/hash";
 import { URL } from "url";
 
 interface Fort {
@@ -11,6 +12,7 @@ interface PutSecretResponse {
 
 interface GetSecretResponse {
   secret: string;
+  checksum: string;
 }
 
 interface ErrorResponse {
@@ -36,7 +38,8 @@ class Citadel {
 
     const responses: Promise<PutSecretResponse | ErrorResponse>[] = [];
     for (let i = 0; i < payloads.length; i++) {
-      const res = this.putSecret(this.forts[i], payloads[i], true);
+      const checksum = Checksum(payloads[i]);
+      const res = this.putSecret(this.forts[i], payloads[i], checksum, true);
       responses.push(res);
     }
 
@@ -75,6 +78,15 @@ class Citadel {
           continue;
         }
         const p = pr as PromiseFulfilledResult<GetSecretResponse>;
+
+        // checksum
+        const checksum = Checksum(p.value.secret);
+        if (p.value.checksum !== checksum) {
+          if (p.value.checksum) {
+            throw new Error("Checksum does not match");
+          }
+        }
+
         res.push(p.value.secret);
       }
     });
@@ -85,6 +97,7 @@ class Citadel {
   private async putSecret(
     fort: Fort,
     secret: string,
+    checksum: string,
     overwrite: boolean = true,
   ): Promise<PutSecretResponse | ErrorResponse> {
     const response = await fetch(`${fort.url.href}api/v0/secret`, {
@@ -97,6 +110,7 @@ class Citadel {
       body: JSON.stringify({
         overwrite,
         secret,
+        checksum,
       }),
     });
 
