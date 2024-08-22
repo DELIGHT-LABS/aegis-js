@@ -39,15 +39,15 @@ test("citadel2", async () => {
   const aegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, secret);
 
   const token =
-    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ5b3VuZ0BkZWxpZ2h0bGFicy5pbyIsImV4cCI6MTc0Njc4NDczMCwianRpIjoiOGJmYTVkMjgtZjkxZi00YmQ3LTgxYTMtZGM4NjllYWVkNmYyIiwic3NvX3Byb3ZpZGVyIjoiR29vZ2xlIn0.ukJ0gYQsZRE8gktRtzxA6cfPH97zWzwLTmU8DODX9sOSwnLPJ0dFFssTbQm0WE-Cfl95COAAl6WwuQ6NSVEIDg";
+    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ4cGxhLWdhbWVzIiwic3ViIjoidGVzdEBkZWxpZ2h0bGFicy5pbyIsImV4cCI6MTc4NzMxMzM0OCwianRpIjoiYWFhYWFhYWEtYmJiYi1jY2NjLWRkZGQtZWVlZWVlZWVlZWVlIiwic3NvX3Byb3ZpZGVyIjoiR29vZ2xlIn0.CXMj447bNXTQwKgkNrwYzucPYH5uxYGQmuDbfb1F2eIZMvhenXa3zYn0PlI4N16BbuG9Riv9Q_LoN4-bUuPcBg";
   const URLs = [
-    new URL("http://34.124.155.209:8080"),
-    new URL("http://34.124.155.209:8081"),
-    new URL("http://34.124.155.209:8082"),
+    new URL("https://citadel-fort1.develop.delightlabs.dev"),
+    new URL("https://citadel-fort2.develop.delightlabs.dev"),
+    new URL("https://citadel-fort3.develop.delightlabs.dev"),
   ];
   const citadel = new Citadel(token, URLs);
 
-  const uuid = new Uint8Array(Buffer.from("8bfa5d28-f91f-4bd7-81a3-dc869eaed6f2"));
+  const uuid = new Uint8Array(Buffer.from("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
   await citadel.store(aegis.payloads, uuid);
 
   const res = await citadel.retrieve(uuid);
@@ -69,18 +69,18 @@ test("citadel retrieve error", async () => {
   const aegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, data);
 
   const token =
-    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ5b3VuZ0BkZWxpZ2h0bGFicy5pbyIsImV4cCI6MTc0Njc4NDczMCwianRpIjoiOGJmYTVkMjgtZjkxZi00YmQ3LTgxYTMtZGM4NjllYWVkNmYyIiwic3NvX3Byb3ZpZGVyIjoiR29vZ2xlIn0.ukJ0gYQsZRE8gktRtzxA6cfPH97zWzwLTmU8DODX9sOSwnLPJ0dFFssTbQm0WE-Cfl95COAAl6WwuQ6NSVEIDg";
+    "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ4cGxhLWdhbWVzIiwic3ViIjoidGVzdEBkZWxpZ2h0bGFicy5pbyIsImV4cCI6MTc4NzMxMzM0OCwianRpIjoiYWFhYWFhYWEtYmJiYi1jY2NjLWRkZGQtZWVlZWVlZWVlZWVlIiwic3NvX3Byb3ZpZGVyIjoiR29vZ2xlIn0.CXMj447bNXTQwKgkNrwYzucPYH5uxYGQmuDbfb1F2eIZMvhenXa3zYn0PlI4N16BbuG9Riv9Q_LoN4-bUuPcBg";
   const URLs = [
-    new URL("http://34.124.155.209:8080"),
-    new URL("http://34.124.155.209:8081"),
-    new URL("http://34.124.155.209:8082"),
+    new URL("https://citadel-fort1.develop.delightlabs.dev"),
+    new URL("https://citadel-fort2.develop.delightlabs.dev"),
+    new URL("https://citadel-fort3.develop.delightlabs.dev"),
   ];
   const citadel = new Citadel(token, URLs);
 
-  const uuid = new Uint8Array(Buffer.from("8bfa5d28-f91f-4bd7-81a3-dc869eaed6f2"));
+  const uuid = new Uint8Array(Buffer.from("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
   await citadel.store(aegis.payloads, uuid);
 
-  citadel.forts[0].url = new URL("http://34.124.155.209:808");
+  citadel.forts[0].url = new URL("http://1.2.3.4:5");
 
   const res = await citadel.retrieve(uuid);
   expect(res.length).toEqual(2);
