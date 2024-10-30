@@ -1,9 +1,10 @@
 {
   "name": "@delight-labs/aegis-js",
   "license": "MIT",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "scripts": {
     "build": "tsc && vite build",
     "prepare": "husky",
