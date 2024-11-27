@@ -126,7 +126,7 @@ class Citadel {
     const response = await fetch(`${fort.url.href}api/v0/secret`, {
       method: "GET",
       headers: {
-        Accept: "application/text",
+        Accept: "application/json",
         Authorization: `Bearer ${fort.token}`,
       },
       signal: AbortSignal.timeout(4000),
