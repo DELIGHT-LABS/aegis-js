@@ -1,9 +1,10 @@
 import { expect, test } from "vitest";
 import { Algorithm, Crypt } from "./crypt";
 import type { ShamirThresholdV1Share } from "./shamir_threshold";
+import { Bytes } from "../common/bytes";
 
 test("ShamirThresholdV1 combine with exactly threshold shares", async () => {
-  const secret = new Uint8Array(Buffer.from("threshold-only"));
+  const secret = Bytes.fromStr("threshold-only");
   const algo = Crypt.New(Algorithm.ShamirThresholdV1);
   const shares = await algo.dealShares(secret, 3, 5);
 
@@ -13,7 +14,7 @@ test("ShamirThresholdV1 combine with exactly threshold shares", async () => {
 });
 
 test("ShamirThresholdV1 combineShares throws when two shares have tampered threshold 3 (4-of-5 deal)", async () => {
-  const secret = new Uint8Array(Buffer.from("threshold-only"));
+  const secret = Bytes.fromStr("threshold-only");
   const algo = Crypt.New(Algorithm.ShamirThresholdV1);
   const shares = await algo.dealShares(secret, 4, 5);
 
@@ -29,21 +30,21 @@ test("ShamirThresholdV1 combineShares throws when two shares have tampered thres
 });
 
 test("ShamirThresholdV1 combineShares throws when share count is below threshold (3-of-5, 2 shares)", async () => {
-  const secret = new Uint8Array(Buffer.from("too-few"));
+  const secret = Bytes.fromStr("too-few");
   const algo = Crypt.New(Algorithm.ShamirThresholdV1);
   const shares = await algo.dealShares(secret, 3, 5);
   await expect(algo.combineShares([shares[0]!, shares[1]!])).rejects.toThrow("Not enough shares");
 });
 
 test("ShamirThresholdV1 combineShares throws when share count is below threshold but above NumMinimumShares", async () => {
-  const secret = new Uint8Array(Buffer.from("five-of-seven"));
+  const secret = Bytes.fromStr("five-of-seven");
   const algo = Crypt.New(Algorithm.ShamirThresholdV1);
   const shares = await algo.dealShares(secret, 5, 7);
   await expect(algo.combineShares(shares.slice(0, 4))).rejects.toThrow("Not enough shares");
 });
 
 test("ShamirThresholdV1 combineShares throws when duplicate shares are provided (3-of-5)", async () => {
-  const secret = new Uint8Array(Buffer.from("duplicate-share"));
+  const secret = Bytes.fromStr("duplicate-share");
   const algo = Crypt.New(Algorithm.ShamirThresholdV1);
   const shares = await algo.dealShares(secret, 3, 5);
 
@@ -51,7 +52,7 @@ test("ShamirThresholdV1 combineShares throws when duplicate shares are provided 
 });
 
 test("ShamirThresholdV1 combineShares throws when duplicate shares are provided (extra shares beyond threshold)", async () => {
-  const secret = new Uint8Array(Buffer.from("duplicate-share"));
+  const secret = Bytes.fromStr("duplicate-share");
   const algo = Crypt.New(Algorithm.ShamirThresholdV1);
   const shares = await algo.dealShares(secret, 3, 5);
 
@@ -73,7 +74,7 @@ test("ShamirThresholdV1 combine does not recover secret when one share is from a
 });
 
 test("ShamirThresholdV1 combine 100k byte secret", async () => {
-  const secret = new Uint8Array(Buffer.from("a".repeat(100000), "utf8"));
+  const secret = Bytes.fromStr("a".repeat(100000));
   const algo = Crypt.New(Algorithm.ShamirThresholdV1);
   const shares = await algo.dealShares(secret, 3, 5);
 
@@ -89,7 +90,7 @@ test("ShamirThresholdV1 dealShares rejects empty secret", async () => {
 });
 
 test("ShamirThresholdV1 serialize round-trip", async () => {
-  const secret = new Uint8Array(Buffer.from("round-trip"));
+  const secret = Bytes.fromStr("round-trip");
   const algo = Crypt.New(Algorithm.ShamirThresholdV1);
   const shares = await algo.dealShares(secret, 3, 5);
   const restored = shares.map(

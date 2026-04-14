@@ -1,4 +1,5 @@
 import { Packet, Share } from "../common/common";
+import { Bytes } from "../common/bytes";
 import { Crypt } from "../crypt";
 import { Version, Protocol } from "./protocol";
 
@@ -30,11 +31,11 @@ class VersionV1 implements Protocol {
     this.share_packet = share.serialize();
 
     const packet = JSON.stringify(this, encodeReplacer);
-    return new Uint8Array(Buffer.from(packet));
+    return Bytes.fromStr(packet);
   }
 
   unpack(packet: Packet): any {
-    const jsonPacket = Buffer.from(packet).toString();
+    const jsonPacket = Bytes.toStr(packet);
     const v1: VersionV1 = JSON.parse(jsonPacket, decodeReplacer);
 
     v1.share = Crypt.NewShare(v1.crypt_algorithm, v1.share_packet);
@@ -44,7 +45,7 @@ class VersionV1 implements Protocol {
 
 function encodeReplacer(key: string, value: any) {
   if (key === "share_packet") {
-    return Buffer.from(value).toString("base64");
+    return Bytes.toBase64(value);
   } else if (key === "share") {
     return undefined;
   }
@@ -53,7 +54,7 @@ function encodeReplacer(key: string, value: any) {
 
 function decodeReplacer(key: string, value: any) {
   if (key === "share_packet") {
-    return new Uint8Array(Buffer.from(value, "base64"));
+    return Bytes.fromBase64(value);
   } else if (key === "share") {
     return undefined;
   }

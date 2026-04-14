@@ -4,6 +4,7 @@ import { Aegis, Decrypt, Encrypt } from "../aegis/aegis";
 import { Version as ProtocolVersion } from "../protocol";
 import { Algorithm } from "../crypt";
 import { Version as CipherVersion } from "../crypt/cipher/cipher";
+import { Bytes } from "../common/bytes";
 
 interface TestAegisSecret {
   wallet: TestWallet[];
@@ -18,9 +19,9 @@ interface TestWallet {
 
 test("citadel2", async () => {
   // Test case 1
-  const password = new Uint8Array(Buffer.from("01234567890123456789012345678901"));
-  const data = new Uint8Array(Buffer.from("MESSAGE_1"));
-  const salt = new Uint8Array(Buffer.from("SALT_1"));
+  const password = Bytes.fromStr("01234567890123456789012345678901");
+  const data = Bytes.fromStr("MESSAGE_1");
+  const salt = Bytes.fromStr("SALT_1");
 
   const encrytpedData = Encrypt(CipherVersion.V1, data, password, salt);
 
@@ -34,7 +35,7 @@ test("citadel2", async () => {
       },
     ],
   };
-  const secret = new Uint8Array(Buffer.from(JSON.stringify(aegisSecretData)));
+  const secret = Bytes.fromStr(JSON.stringify(aegisSecretData));
 
   const aegis = await Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, secret);
 
@@ -47,7 +48,7 @@ test("citadel2", async () => {
   ];
   const citadel = new Citadel(token, URLs);
 
-  const uuid = new Uint8Array(Buffer.from("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
+  const uuid = Bytes.fromStr("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
   await citadel.store(aegis.payloads, uuid);
 
   const res = await citadel.retrieve(uuid);
@@ -55,7 +56,7 @@ test("citadel2", async () => {
 
   const encryptedRes = await Aegis.combineShares(res);
 
-  const resAegisSecret: TestAegisSecret = JSON.parse(Buffer.from(encryptedRes).toString());
+  const resAegisSecret: TestAegisSecret = JSON.parse(Bytes.toStr(encryptedRes));
 
   const decryptedRes = Decrypt(resAegisSecret.wallet[0].encrypted, password, salt);
 
@@ -64,7 +65,7 @@ test("citadel2", async () => {
 
 test("citadel retrieve error", async () => {
   // Test case 1
-  const data = new Uint8Array(Buffer.from("MESSAGE_1"));
+  const data = Bytes.fromStr("MESSAGE_1");
 
   const aegis = await Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, data);
 
@@ -77,7 +78,7 @@ test("citadel retrieve error", async () => {
   ];
   const citadel = new Citadel(token, URLs);
 
-  const uuid = new Uint8Array(Buffer.from("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
+  const uuid = Bytes.fromStr("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
   await citadel.store(aegis.payloads, uuid);
 
   citadel.forts[0].url = new URL("http://1.2.3.4:5");

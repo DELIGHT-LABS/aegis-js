@@ -3,19 +3,21 @@ import { Version as ProtocolVersion } from "../protocol";
 import { expect, test } from "vitest";
 import { Algorithm } from "../crypt";
 import { Version as CipherVersion } from "../crypt/cipher/cipher";
+import { Bytes } from "../common/bytes";
 
-const oldSecret = new Uint8Array(Buffer.from("OLD_SECRET"));
+const oldSecret = Bytes.fromStr("OLD_SECRET");
 const oldAegis = await Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 5, oldSecret);
 const oldPayloads = oldAegis.payloads;
 
 await new Promise(resolve => setTimeout(resolve, 1000));
 
-const newSecret = new Uint8Array(Buffer.from("NEW_SECRET"));
+const newSecret = Bytes.fromStr("NEW_SECRET");
 const newAegis = await Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 5, newSecret);
 const newPayloads = newAegis.payloads;
 
 test("aegis1", async () => {
-  const data = new Uint8Array(Buffer.from("MESSAGE_1"));
+  // Test case 1
+  const data = Bytes.fromStr("MESSAGE_1");
 
   const aegis = await Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, data);
 
@@ -40,9 +42,9 @@ test("aegis - picking majority - new is minority", async () => {
 });
 
 test("encrypt & decrypt 1", () => {
-  const password = new Uint8Array(Buffer.from("PASSWORD_1"));
-  const secret = new Uint8Array(Buffer.from("MESSAGE_1"));
-  const salt = new Uint8Array(Buffer.from("SALT_1"));
+  const password = Bytes.fromStr("PASSWORD_1");
+  const secret = Bytes.fromStr("MESSAGE_1");
+  const salt = Bytes.fromStr("SALT_1");
 
   const encrypted = Encrypt(CipherVersion.V1, secret, password, salt);
 
@@ -51,9 +53,9 @@ test("encrypt & decrypt 1", () => {
 });
 
 test("encrypt & decrypt 2", () => {
-  const password = new Uint8Array(Buffer.from("PASSWORD_2"));
-  const secret = new Uint8Array(Buffer.from("MESSAGE_2"));
-  const salt = new Uint8Array(Buffer.from("SALT_2"));
+  const password = Bytes.fromStr("PASSWORD_2");
+  const secret = Bytes.fromStr("MESSAGE_2");
+  const salt = Bytes.fromStr("SALT_2");
 
   const encrypted = Encrypt(CipherVersion.V1, secret, password, salt);
 

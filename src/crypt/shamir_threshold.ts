@@ -1,5 +1,6 @@
 import { combine, split } from "shamir-secret-sharing";
 import { ThresholdAlgorithm, Share, Secret, NumMinimumShares } from "../common/common";
+import { Bytes } from "../common/bytes";
 import { Algorithm } from "./crypt";
 
 class ShamirThresholdV1Share implements Share {
@@ -15,7 +16,7 @@ class ShamirThresholdV1Share implements Share {
       return;
     }
 
-    const share: ShamirThresholdV1Share = JSON.parse(Buffer.from(object).toString(), decodeReplacer);
+    const share: ShamirThresholdV1Share = JSON.parse(Bytes.toStr(object), decodeReplacer);
     if (share === undefined) {
       throw new Error("Invalid ShamirThresholdV1Share type");
     }
@@ -32,7 +33,7 @@ class ShamirThresholdV1Share implements Share {
   }
 
   serialize(): Uint8Array {
-    return new Uint8Array(Buffer.from(JSON.stringify(this, encodeReplacer)));
+    return Bytes.fromStr(JSON.stringify(this, encodeReplacer));
   }
 }
 
@@ -112,7 +113,7 @@ class ShamirThresholdV1 implements ThresholdAlgorithm {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function encodeReplacer(key: string, value: any) {
   if (key === "payload") {
-    return Buffer.from(value).toString("base64");
+    return Bytes.toBase64(value);
   }
   return value;
 }
@@ -120,7 +121,7 @@ function encodeReplacer(key: string, value: any) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function decodeReplacer(key: string, value: any) {
   if (key === "payload") {
-    return new Uint8Array(Buffer.from(value, "base64"));
+    return Bytes.fromBase64(value);
   }
   return value;
 }
