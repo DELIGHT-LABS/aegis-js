@@ -36,7 +36,7 @@ test("citadel2", async () => {
   };
   const secret = new Uint8Array(Buffer.from(JSON.stringify(aegisSecretData)));
 
-  const aegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, secret);
+  const aegis = await Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, secret);
 
   const token =
     "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ4cGxhLWdhbWVzIiwic3ViIjoidGVzdEBkZWxpZ2h0bGFicy5pbyIsImV4cCI6MTc4NzMxMzM0OCwianRpIjoiYWFhYWFhYWEtYmJiYi1jY2NjLWRkZGQtZWVlZWVlZWVlZWVlIiwic3NvX3Byb3ZpZGVyIjoiR29vZ2xlIn0.CXMj447bNXTQwKgkNrwYzucPYH5uxYGQmuDbfb1F2eIZMvhenXa3zYn0PlI4N16BbuG9Riv9Q_LoN4-bUuPcBg";
@@ -53,7 +53,7 @@ test("citadel2", async () => {
   const res = await citadel.retrieve(uuid);
   expect(res.length).toEqual(3);
 
-  const encryptedRes = Aegis.combineShares(res);
+  const encryptedRes = await Aegis.combineShares(res);
 
   const resAegisSecret: TestAegisSecret = JSON.parse(Buffer.from(encryptedRes).toString());
 
@@ -66,7 +66,7 @@ test("citadel retrieve error", async () => {
   // Test case 1
   const data = new Uint8Array(Buffer.from("MESSAGE_1"));
 
-  const aegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, data);
+  const aegis = await Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, data);
 
   const token =
     "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ4cGxhLWdhbWVzIiwic3ViIjoidGVzdEBkZWxpZ2h0bGFicy5pbyIsImV4cCI6MTc4NzMxMzM0OCwianRpIjoiYWFhYWFhYWEtYmJiYi1jY2NjLWRkZGQtZWVlZWVlZWVlZWVlIiwic3NvX3Byb3ZpZGVyIjoiR29vZ2xlIn0.CXMj447bNXTQwKgkNrwYzucPYH5uxYGQmuDbfb1F2eIZMvhenXa3zYn0PlI4N16BbuG9Riv9Q_LoN4-bUuPcBg";

@@ -38,7 +38,7 @@ class NoCrypt implements ThresholdAlgorithm {
     return Algorithm.NoCryptAlgo;
   }
 
-  dealShares(secret: Secret, threshold: number, total: number): Share[] {
+  async dealShares(secret: Secret, threshold: number, total: number): Promise<Share[]> {
     const ncShares: NoCryptShare[] = [];
 
     for (let index = 0; index < total; index++) {
@@ -59,7 +59,7 @@ class NoCrypt implements ThresholdAlgorithm {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  combineShares(shares: Share[]): Secret {
+  async combineShares(shares: Share[]): Promise<Secret> {
     if (shares.length < NumMinimumShares) {
       throw new Error("Not enough shares");
     }

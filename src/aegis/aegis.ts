@@ -10,13 +10,13 @@ class Aegis {
     this.payloads = [];
   }
 
-  public static dealShares(
+  public static async dealShares(
     protocolVersion: ProtocolVersion,
     algorithm: Algorithm,
     threshold: number,
     total: number,
     secret: Secret,
-  ): Aegis {
+  ): Promise<Aegis> {
     const aegis = new Aegis();
 
     if (threshold < NumMinimumShares) {
@@ -25,10 +25,10 @@ class Aegis {
 
     // Deal
     const algo = Crypt.New(algorithm);
-    const shares = algo.dealShares(secret, threshold, total);
+    const shares = await algo.dealShares(secret, threshold, total);
 
     // Verify
-    const combined = algo.combineShares(shares);
+    const combined = await algo.combineShares(shares);
     if (!isEqual(secret, combined)) {
       throw new Error("shares verification failed");
     }
@@ -44,7 +44,7 @@ class Aegis {
     return aegis;
   }
 
-  public static combineShares(payloads: string[]): Secret {
+  public static async combineShares(payloads: string[]): Promise<Secret> {
     // Pre-verification
     if (payloads === null || payloads.length < NumMinimumShares) {
       throw new Error("error handling");
@@ -87,7 +87,7 @@ class Aegis {
 
     // Combine
     const algo = Crypt.New(algorithm);
-    return algo.combineShares(majorityShares);
+    return await algo.combineShares(majorityShares);
   }
 }
 

@@ -5,39 +5,37 @@ import { Algorithm } from "../crypt";
 import { Version as CipherVersion } from "../crypt/cipher/cipher";
 
 const oldSecret = new Uint8Array(Buffer.from("OLD_SECRET"));
-const oldAegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 5, oldSecret);
+const oldAegis = await Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 5, oldSecret);
 const oldPayloads = oldAegis.payloads;
 
-// for diffrent timestamps
 await new Promise(resolve => setTimeout(resolve, 1000));
 
 const newSecret = new Uint8Array(Buffer.from("NEW_SECRET"));
-const newAegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 5, newSecret);
+const newAegis = await Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 5, newSecret);
 const newPayloads = newAegis.payloads;
 
-test("aegis1", () => {
-  // Test case 1
+test("aegis1", async () => {
   const data = new Uint8Array(Buffer.from("MESSAGE_1"));
 
-  const aegis = Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, data);
+  const aegis = await Aegis.dealShares(ProtocolVersion.V1, Algorithm.NoCryptAlgo, 3, 3, data);
 
   expect(aegis.payloads.length).toEqual(3);
 
-  const res = Aegis.combineShares(aegis.payloads);
+  const res = await Aegis.combineShares(aegis.payloads);
   expect(res).toEqual(data);
 });
 
-test("aegis - picking majority - new is majority", () => {
+test("aegis - picking majority - new is majority", async () => {
   const payloads = [oldPayloads[0], newPayloads[1], newPayloads[2], newPayloads[3], newPayloads[4]];
 
-  const res = Aegis.combineShares(payloads);
+  const res = await Aegis.combineShares(payloads);
   expect(res).toEqual(newSecret);
 });
 
-test("aegis - picking majority - new is minority", () => {
+test("aegis - picking majority - new is minority", async () => {
   const payloads = [oldPayloads[0], oldPayloads[1], oldPayloads[2], newPayloads[3], newPayloads[4]];
 
-  const res = Aegis.combineShares(payloads);
+  const res = await Aegis.combineShares(payloads);
   expect(res).toEqual(oldSecret);
 });
 

@@ -35,7 +35,8 @@
   },
   "dependencies": {
     "@noble/hashes": "^1.4.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "shamir-secret-sharing": "^0.0.4"
   },
   "exports": {
     ".": {
