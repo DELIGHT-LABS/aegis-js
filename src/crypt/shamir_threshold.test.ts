@@ -42,6 +42,22 @@ test("ShamirThresholdV1 combineShares throws when share count is below threshold
   await expect(algo.combineShares(shares.slice(0, 4))).rejects.toThrow("Not enough shares");
 });
 
+test("ShamirThresholdV1 combineShares throws when duplicate shares are provided (3-of-5)", async () => {
+  const secret = new Uint8Array(Buffer.from("duplicate-share"));
+  const algo = Crypt.New(Algorithm.ShamirThresholdV1);
+  const shares = await algo.dealShares(secret, 3, 5);
+
+  await expect(algo.combineShares([shares[0]!, shares[0]!, shares[2]!])).rejects.toThrow("duplicate");
+});
+
+test("ShamirThresholdV1 combineShares throws when duplicate shares are provided (extra shares beyond threshold)", async () => {
+  const secret = new Uint8Array(Buffer.from("duplicate-share"));
+  const algo = Crypt.New(Algorithm.ShamirThresholdV1);
+  const shares = await algo.dealShares(secret, 3, 5);
+
+  await expect(algo.combineShares([shares[0]!, shares[1]!, shares[2]!, shares[2]!])).rejects.toThrow("duplicate");
+});
+
 test("ShamirThresholdV1 combine does not recover secret when one share is from another deal (3-of-5)", async () => {
   const algo = Crypt.New(Algorithm.ShamirThresholdV1);
   const secretA = new Uint8Array(32).fill(0x11);

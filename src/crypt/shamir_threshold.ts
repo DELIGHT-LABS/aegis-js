@@ -3,14 +3,12 @@ import { ThresholdAlgorithm, Share, Secret, NumMinimumShares } from "../common/c
 import { Algorithm } from "./crypt";
 
 class ShamirThresholdV1Share implements Share {
-  index: number;
   threshold: number;
   total: number;
   payload: Uint8Array;
 
   constructor(object?: Uint8Array) {
     if (object === undefined) {
-      this.index = 0;
       this.threshold = 0;
       this.total = 0;
       this.payload = new Uint8Array();
@@ -21,7 +19,6 @@ class ShamirThresholdV1Share implements Share {
     if (share === undefined) {
       throw new Error("Invalid ShamirThresholdV1Share type");
     }
-    this.index = share.index;
     this.threshold = share.threshold;
     this.total = share.total;
     this.payload = share.payload;
@@ -60,7 +57,6 @@ class ShamirThresholdV1 implements ThresholdAlgorithm {
 
     for (let s = 0; s < total; s++) {
       const sh = new ShamirThresholdV1Share();
-      sh.index = s + 1;
       sh.threshold = threshold;
       sh.total = total;
       sh.payload = new Uint8Array(blobs[s]!);
@@ -104,24 +100,12 @@ class ShamirThresholdV1 implements ThresholdAlgorithm {
       if (st.getAlgorithm() !== Algorithm.ShamirThresholdV1) {
         throw new Error("Invalid shares");
       }
-      if (st.index < 1 || st.index > total) {
-        throw new Error("Invalid share index");
-      }
       if (st.payload.byteLength !== payloadLen) {
         throw new Error("Inconsistent shares");
       }
     }
 
-    stShares.sort((a, b) => a.index - b.index);
-
-    for (let i = 1; i < stShares.length; i++) {
-      if (stShares[i]!.index === stShares[i - 1]!.index) {
-        throw new Error("Duplicate share index");
-      }
-    }
-
-    const selected = stShares.slice(0, threshold);
-    return await combine(selected.map(st => st.payload));
+    return await combine(stShares.map(st => st.payload));
   }
 }
 
