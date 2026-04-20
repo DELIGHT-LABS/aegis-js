@@ -12,8 +12,8 @@ function isEqual(s: Secret, s2: Secret): boolean {
 
 interface ThresholdAlgorithm {
   getName(): string;
-  dealShares(secret: Secret, threshold: number, total: number): Share[];
-  combineShares(shares: Share[]): Secret;
+  dealShares(secret: Secret, threshold: number, total: number): Promise<Share[]>;
+  combineShares(shares: Share[]): Promise<Secret>;
 }
 
 interface Share {
