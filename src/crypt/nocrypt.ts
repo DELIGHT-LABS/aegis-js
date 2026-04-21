@@ -1,4 +1,5 @@
 import { ThresholdAlgorithm, Share, Secret, NumMinimumShares } from "../common/common";
+import { Bytes } from "../common/bytes";
 import { Algorithm } from "./crypt";
 
 class NoCryptShare implements Share {
@@ -14,7 +15,7 @@ class NoCryptShare implements Share {
       return;
     }
 
-    const share: NoCryptShare = JSON.parse(Buffer.from(object).toString(), decodeReplacer);
+    const share: NoCryptShare = JSON.parse(Bytes.toStr(object), decodeReplacer);
     if (share === undefined) {
       throw new Error("Invalid NoCryptShare type");
     }
@@ -25,7 +26,7 @@ class NoCryptShare implements Share {
   }
 
   serialize(): Uint8Array {
-    return new Uint8Array(Buffer.from(JSON.stringify(this, encodeReplacer)));
+    return Bytes.fromStr(JSON.stringify(this, encodeReplacer));
   }
 
   getAlgorithm(): Algorithm {
@@ -86,7 +87,7 @@ class NoCrypt implements ThresholdAlgorithm {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function encodeReplacer(key: string, value: any) {
   if (key === "content") {
-    return Buffer.from(value).toString("base64");
+    return Bytes.toBase64(value);
   }
   return value;
 }
@@ -94,7 +95,7 @@ function encodeReplacer(key: string, value: any) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function decodeReplacer(key: string, value: any) {
   if (key === "content") {
-    return new Uint8Array(Buffer.from(value, "base64"));
+    return Bytes.fromBase64(value);
   }
   return value;
 }

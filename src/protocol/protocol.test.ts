@@ -1,9 +1,10 @@
 import { expect, test } from "vitest";
 import { Version, pack, unpack } from "./protocol";
 import { NoCryptShare } from "../crypt";
+import { Bytes } from "../common/bytes";
 
 const share = new NoCryptShare();
-share.content = new Uint8Array(Buffer.from("VEVTVF9WMV9QQUNLRVRfMTIzNDU2Nzg5MA=="));
+share.content = Bytes.fromStr("VEVTVF9WMV9QQUNLRVRfMTIzNDU2Nzg5MA==");
 share.total = 5;
 share.threshold = 3;
 

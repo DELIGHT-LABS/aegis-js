@@ -1,4 +1,5 @@
 import { Secret } from "../../common/common";
+import { Bytes } from "../../common/bytes";
 import { VersionV1 } from "./v1";
 
 export enum Version {
@@ -27,13 +28,13 @@ function Encrypt(version: Version, plainText: Secret, password: Uint8Array, salt
       throw new Error("Unsupported cipher version");
   }
 
-  return Buffer.from(JSON.stringify(packet, encodeReplacer)).toString("base64");
+  return Bytes.toBase64(Bytes.fromStr(JSON.stringify(packet, encodeReplacer)));
 }
 
 function Decrypt(packet: string, password: Uint8Array, salt: Uint8Array): Secret {
-  const decoded = Buffer.from(packet, "base64");
+  const decoded = Bytes.fromBase64(packet);
 
-  const cipher: CipherPacket = JSON.parse(decoded.toString(), decodeReplacer);
+  const cipher: CipherPacket = JSON.parse(Bytes.toStr(decoded), decodeReplacer);
 
   let decrypted: Secret;
   switch (cipher.version) {
@@ -50,7 +51,7 @@ function Decrypt(packet: string, password: Uint8Array, salt: Uint8Array): Secret
 /* eslint-disable @typescript-eslint/no-explicit-any*/
 function encodeReplacer(key: string, value: any) {
   if (key === "cipherText") {
-    return Buffer.from(value).toString("base64");
+    return Bytes.toBase64(value);
   }
   return value;
 }
@@ -58,7 +59,7 @@ function encodeReplacer(key: string, value: any) {
 /* eslint-disable @typescript-eslint/no-explicit-any*/
 function decodeReplacer(key: string, value: any) {
   if (key === "cipherText") {
-    return new Uint8Array(Buffer.from(value, "base64"));
+    return Bytes.fromBase64(value);
   }
   return value;
 }

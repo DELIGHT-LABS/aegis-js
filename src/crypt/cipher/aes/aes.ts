@@ -1,32 +1,26 @@
+import { gcm } from "@noble/ciphers/aes.js";
+import { randomBytes, concatBytes } from "@noble/ciphers/utils.js";
 import { Secret } from "../../../common/common";
-import * as crypto from "node:crypto";
+import { Bytes } from "../../../common/bytes";
 
 const nonceLen = 12;
-const tagLen = 16;
 
 export function encryptGCM(plainText: Secret, key: Uint8Array): Secret {
-  const nonce = crypto.randomBytes(nonceLen);
+  const nonce = randomBytes(nonceLen);
 
   // Encrypt
-  const cipher = crypto.createCipheriv("aes-256-gcm", key, nonce);
-  const cipherText = Buffer.concat([nonce, cipher.update(plainText), cipher.final(), cipher.getAuthTag()]);
-
+  const ciphertext = gcm(key, nonce).encrypt(plainText);
   // base64 encoding
-  const encodingCiperText = cipherText.toString("base64");
-  return new Uint8Array(Buffer.from(encodingCiperText));
+  const packed = concatBytes(nonce, ciphertext);
+  return Bytes.fromStr(Bytes.toBase64(packed));
 }
 
 export function decryptGCM(cipherText: Uint8Array, key: Uint8Array): Secret {
   // Decode
-  const decoded = new Uint8Array(Buffer.from(Buffer.from(cipherText).toString(), "base64"));
+  const decoded = Bytes.fromBase64(Bytes.toStr(cipherText));
   const nonce = decoded.slice(0, nonceLen);
-  const encrypted = decoded.slice(nonceLen, decoded.length - tagLen);
-  const tag = decoded.slice(-tagLen);
+  const encrypted = decoded.slice(nonceLen);
 
   // Decrypt
-  const decipher = crypto.createDecipheriv("aes-256-gcm", key, nonce);
-  decipher.setAuthTag(tag);
-  const data = decipher.update(encrypted);
-
-  return new Uint8Array(data);
+  return gcm(key, nonce).decrypt(encrypted);
 }

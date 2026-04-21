@@ -1,5 +1,6 @@
 import { VersionV1 } from "./v1";
 import { Packet } from "../common/common";
+import { Bytes } from "../common/bytes";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface Protocol {
@@ -36,13 +37,13 @@ function pack(version: Version, v: any, timestamp: number): string {
 
   const data = JSON.stringify(p, encodeReplacer);
 
-  return Buffer.from(data).toString("base64");
+  return Bytes.toBase64(Bytes.fromStr(data));
 }
 
 function unpack(data: string): [any, number] {
-  const deconded = Buffer.from(data, "base64");
+  const deconded = Bytes.fromBase64(data);
 
-  const p: Payload = JSON.parse(deconded.toString(), decodeReplacer);
+  const p: Payload = JSON.parse(Bytes.toStr(deconded), decodeReplacer);
   if (p.timestamp === undefined) {
     p.timestamp = 0;
   }
@@ -67,14 +68,14 @@ function getProtocol(version: Version): Protocol | null {
 
 function encodeReplacer(key: string, value: any) {
   if (key === "packet") {
-    return Buffer.from(value).toString("base64");
+    return Bytes.toBase64(value);
   }
   return value;
 }
 
 function decodeReplacer(key: string, value: any) {
   if (key === "packet") {
-    return new Uint8Array(Buffer.from(value, "base64"));
+    return Bytes.fromBase64(value);
   }
   return value;
 }

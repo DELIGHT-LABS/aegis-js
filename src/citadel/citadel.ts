@@ -1,5 +1,4 @@
 import { Checksum } from "../crypt/cipher/hash";
-import { URL } from "url";
 
 interface Fort {
   token: string;
